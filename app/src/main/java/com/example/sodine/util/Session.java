@@ -13,16 +13,11 @@ public class Session {
     }
 
     public void setUser(String username) {
-//        this.username = username;
         prefs.edit().putString("username", username).apply();
     }
 
-//    public String getUser() {
-//        return username;
-//    }
-
     public String getUser() {
-        return prefs.getString("username","");
+        return prefs.getString("username","missingno.");
     }
 
     public void clearSession(Context ctx)

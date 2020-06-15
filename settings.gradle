@@ -1,2 +1,2 @@
 rootProject.name='SoDiNe'
-include ':app'
+include ':app', ':gson-2.8.6-2'
