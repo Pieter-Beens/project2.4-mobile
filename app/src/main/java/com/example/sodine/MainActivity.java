@@ -55,4 +55,19 @@ public class MainActivity extends AppCompatActivity {
         intent.putExtra("com.example.sodine.username", username);
         startActivity(intent);
     }
+
+    public void addContact(View view) {
+        Intent intent = new Intent(this, AddContactActivity.class);
+        startActivity(intent);
+    }
+
+    public void viewContacts(View view) {
+        Intent intent = new Intent(this, ViewContactsActivity.class);
+        startActivity(intent);
+    }
+
+    public void editHousehold(View view) {
+        Intent intent = new Intent(this, EditHouseholdActivity.class);
+        startActivity(intent);
+    }
 }
