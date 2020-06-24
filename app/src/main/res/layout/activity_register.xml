@@ -6,4 +6,113 @@
     android:layout_height="match_parent"
     tools:context=".RegisterActivity">
 
+<ImageView
+    android:id="@+id/logoView"
+    android:layout_width="0dp"
+    android:layout_height="150dp"
+    android:layout_marginStart="75dp"
+    android:layout_marginLeft="75dp"
+    android:layout_marginEnd="75dp"
+    android:layout_marginRight="75dp"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintHorizontal_bias="0.482"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent"
+    app:srcCompat="@drawable/sodinelogo" />
+
+<androidx.constraintlayout.widget.ConstraintLayout
+    android:layout_width="304dp"
+    android:layout_height="0dp"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintHorizontal_bias="0.5"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@+id/logoView"
+    app:layout_constraintVertical_bias="0.0">
+
+    <LinearLayout
+        android:id="@+id/linearLayout"
+        android:layout_width="280dp"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/textView3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="NIEUW ACCOUNT AANMAKEN"
+            android:textSize="19sp"
+            android:textStyle="bold" />
+
+        <EditText
+            android:id="@+id/mailInput"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginTop="0dp"
+            android:layout_marginBottom="16dp"
+            android:ems="10"
+            android:gravity="center_horizontal"
+            android:hint="Persoonlijk mailadres"
+            android:inputType="textPersonName" />
+
+        <EditText
+            android:id="@+id/nameInput"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginTop="0dp"
+            android:layout_marginBottom="16dp"
+            android:ems="10"
+            android:gravity="center_horizontal"
+            android:hint="Kies gebruikersnaam"
+            android:inputType="textPersonName" />
+
+        <EditText
+            android:id="@+id/passwordInput"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginBottom="16dp"
+            android:ems="10"
+            android:gravity="center_horizontal"
+            android:hint="Kies uw wachtwoord"
+            android:inputType="textPassword" />
+
+        <EditText
+            android:id="@+id/passwordInput2"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginBottom="16dp"
+            android:ems="10"
+            android:gravity="center_horizontal"
+            android:hint="Bevestig wachtwoord"
+            android:inputType="textPassword" />
+
+        <TextView
+            android:id="@+id/errorTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:gravity="center_horizontal"
+            android:textColor="@android:color/holo_red_dark"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/submitButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="28dp"
+            android:onClick="submit"
+            android:text="Verstuur"
+            android:textSize="22sp" />
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

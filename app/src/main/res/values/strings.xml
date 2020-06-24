@@ -1,6 +1,20 @@
 <resources>
     <string name="app_name">SoDiNe</string>
-    <string name="fucked">Yer fooked</string>
     <string name="title_activity_login">Aanmelden</string>
     <string name="login_error">Gebruikersnaam of wachtwoord incorrect</string>
+    <string name="risk0">Minimaal risico</string>
+    <string name="risk1">Laag risico</string>
+    <string name="risk2">Risico</string>
+    <string name="risk3">Hoog risico</string>
+    <string name="risk4">U heeft het virus</string>
+    <string name="coronaform">Hier kunt u aangeven welke symptomen van Covid-19 u ervaart. Deze informatie kan helpen een betere inschatting te maken van uw risiconiveau. Wijzigingen worden alleen opgeslagen als u deze bevestigt en opnieuw uw wachtwoord invoert.</string>
+    <string name="koorts">Lichaamstemperatuur van tenminste 38 graden in rust.</string>
+    <string name="keelpijn">Een branderig gevoel, slikklachten en/of het gevoel dat de keel vernauwd is.</string>
+    <string name="hoofdpijn">Drukkende pijn gelokaliseerd in het hoofd.</string>
+    <string name="diarree">Pfflrrsst</string>
+    <string name="bindvliesontsteking">Onsteking van de buitenste laag van het oog. Maakt ogen rood, gezwollen en pijnlijk, brandt, jeukt en traant. Soms sprake van etterige afscheiding uit het oog.</string>
+    <string name="ademhalingsproblemen">Omvat ongewone kortademigheid en moeite met inhaleren.</string>
+    <string name="borstpijn">Een ongewoon drukkend gevoel op de borst; pijn optioneel.</string>
+    <string name="hoest">Een kriebelende hoest waarbij geen of weinig slijm wordt opgehoest. Voelt alsof de hoest vastzit en niet weggaat.</string>
+    <string name="bewegingsvermogen">U leidt aan dit symptoom als u overige klachten heeft die uw bewegingsvermogen verminderen, inclusief moeite met spreken.</string>
 </resources>

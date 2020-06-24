@@ -1,33 +1,23 @@
 package com.example.sodine;
 
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOError;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -50,13 +40,13 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        nameInput = findViewById(R.id.nameInput);
+        nameInput = findViewById(R.id.mailInput);
         passwordInput = findViewById(R.id.passwordInput);
         errorText = findViewById(R.id.errorTextView);
     }
 
     public void login(View view) {
-        String username = nameInput.getText().toString();
+        String email = nameInput.getText().toString();
         String password = passwordInput.getText().toString();
         boolean success = false;
 
@@ -64,12 +54,17 @@ public class LoginActivity extends AppCompatActivity {
             success = true;
         }
         if (success) {
-            MainActivity.session.setUser(username);
+            MainActivity.session.setUser(email);
             Intent intent = new Intent(this, MainActivity.class);
             startActivity(intent);
         } else {
             errorText.setText(R.string.login_error);
         }
+    }
+
+    public void register(View view) {
+        Intent intent = new Intent(this, RegisterActivity.class);
+        startActivity(intent);
     }
 
     //TODO: move everything below here to API class
@@ -97,19 +92,19 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public String validateA() {
-        String username = nameInput.getText().toString();
+        String email = nameInput.getText().toString();
         String password = passwordInput.getText().toString();
 
-        Log.d("Username", username);
-        Log.d("Password", password);
-        String url = "http://sodine.nl:5000/api/v1.0/login";
+        Log.d("email a", email);
+        Log.d("Password a", password);
+        String url = "https://sodine.nl:5000/api/v1.0/user/login";
         String result = "";
 
         String response = "";
         try {
 
             Map<String, String> params = new HashMap<String, String>(2);
-            params.put("username", username);
+            params.put("email", email);
             params.put("password", password);
             result = multipartRequest(url, params);
 
@@ -120,7 +115,7 @@ public class LoginActivity extends AppCompatActivity {
         return result;
     }
 
-    public String multipartRequest(String urlTo, Map<String, String> parmas) throws IOException {
+    public String multipartRequest(String urlTo, Map<String, String> params) throws IOException {
         HttpURLConnection connection = null;
         DataOutputStream outputStream = null;
         InputStream inputStream = null;
@@ -148,10 +143,10 @@ public class LoginActivity extends AppCompatActivity {
             outputStream = new DataOutputStream(connection.getOutputStream());
 
             // Upload POST Data
-            Iterator<String> keys = parmas.keySet().iterator();
+            Iterator<String> keys = params.keySet().iterator();
             while (keys.hasNext()) {
                 String key = keys.next();
-                String value = parmas.get(key);
+                String value = params.get(key);
 
                 outputStream.writeBytes(twoHyphens + boundary + lineEnd);
                 outputStream.writeBytes("Content-Disposition: form-data; name=\"" + key + "\"" + lineEnd);

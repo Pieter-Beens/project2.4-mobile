@@ -10,26 +10,36 @@ import android.widget.TextView;
 
 public class CoronaFormActivity extends AppCompatActivity {
 
-    public Switch switch1;
-    public TextView textView;
+    public Switch[] symptoms;
+    public TextView nameTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_corona_form);
 
-        textView = findViewById(R.id.textView2);
-        switch1 = findViewById(R.id.switch1);
+        nameTextView = findViewById(R.id.nameTextView);
+
+        symptoms = new Switch[]{
+                findViewById(R.id.koortsSwitch), findViewById(R.id.hoofdpijnSwitch),
+                findViewById(R.id.borstpijnSwitch), findViewById(R.id.keelpijnSwitch),
+                findViewById(R.id.bewegingsvermogenSwitch), findViewById(R.id.diarreeSwitch),
+                findViewById(R.id.bindvliesontstekingSwitch), findViewById(R.id.hoestSwitch),
+                findViewById(R.id.ademhalingsproblemenSwitch)
+        };
 
         // Get the Intent that started this activity and extract the string
         Intent intent = getIntent();
         String username = intent.getStringExtra("com.example.sodine.username");
-        textView.setText(username);
-        switch1.setChecked(MainActivity.fucked);
+        nameTextView.setText(username);
     }
 
     public void goBack(View view) {
-        MainActivity.fucked = switch1.isChecked();
+        int score = 0;
+        for (Switch symptom : symptoms) {
+            if (symptom.isChecked()) score++;
+        }
+        MainActivity.risico = score;
         startActivity(new Intent(this, MainActivity.class));
     }
 }

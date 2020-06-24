@@ -17,7 +17,7 @@ public class Session {
     }
 
     public String getUser() {
-        return prefs.getString("username","missingno.");
+        return prefs.getString("username","");
     }
 
     public void clearSession(Context ctx)
