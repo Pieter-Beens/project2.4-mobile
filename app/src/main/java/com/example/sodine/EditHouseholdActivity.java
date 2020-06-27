@@ -12,7 +12,16 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 public class EditHouseholdActivity extends AppCompatActivity {
@@ -54,9 +63,142 @@ public class EditHouseholdActivity extends AppCompatActivity {
     }
 
     public String getRoommateData() {
+        String userID = MainActivity.session.getUser(); //TODO: change from name to ID from JWT
+        String url = "https://sodine.nl:5000/api/v1.0/roommates/" + userID;
         String response = "";
-        //TODO: send get command to API
+        try {
+            Map<String, String> params = new HashMap<>(1);
+            params.put("id", userID);
+            response = sendJWT(url);
+        } catch (Exception e) {
+            Log.d("Error", e.toString());
+        }
         return response;
+    }
+
+
+    public String sendFormdata(String urlTo, Map<String, String> params) throws IOException {
+        HttpURLConnection connection;
+        DataOutputStream outputStream;
+        InputStream inputStream;
+
+        //formdata stuff
+        String twoHyphens = "--";
+        String boundary = "*****" + Long.toString(System.currentTimeMillis()) + "*****";
+        String lineEnd = "\r\n";
+
+        try {
+            URL url = new URL(urlTo);
+            connection = (HttpURLConnection) url.openConnection();
+
+            connection.setDoInput(true);
+            connection.setDoOutput(true);
+            connection.setUseCaches(false);
+
+            connection.setRequestMethod("GET");
+            connection.setRequestProperty("Connection", "Keep-Alive");
+            connection.setRequestProperty("User-Agent", "Android Multipart HTTP Client 1.0");
+            connection.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
+
+            outputStream = new DataOutputStream(connection.getOutputStream());
+
+            Iterator<String> keys = params.keySet().iterator();
+            while (keys.hasNext()) {
+                String key = keys.next();
+                String value = params.get(key);
+
+                //formdata stuff
+                outputStream.writeBytes(twoHyphens + boundary + lineEnd);
+                outputStream.writeBytes("Content-Disposition: form-data; name=\"" + key + "\"" + lineEnd);
+                outputStream.writeBytes("Content-Type: text/plain" + lineEnd);
+                outputStream.writeBytes(lineEnd);
+                outputStream.writeBytes(value);
+                outputStream.writeBytes(lineEnd);
+            }
+
+            //formdata stuff
+            outputStream.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
+
+
+            if (200 != connection.getResponseCode()) {
+                throw new IOException("Failed to upload code:" + connection.getResponseCode() + " " + connection.getResponseMessage());
+            }
+
+            inputStream = connection.getInputStream();
+
+            String result = this.convertStreamToString(inputStream);
+
+            inputStream.close();
+            outputStream.flush();
+            outputStream.close();
+
+            return result;
+        } catch (Exception e) {
+            throw new IOException(e);
+        }
+    }
+
+    public String sendJWT(String urlTo) throws IOException {
+        HttpURLConnection connection;
+        DataOutputStream outputStream;
+        InputStream inputStream;
+
+        try {
+            URL url = new URL(urlTo);
+            connection = (HttpURLConnection) url.openConnection();
+
+            connection.setDoInput(true);
+            connection.setDoOutput(true);
+            connection.setUseCaches(false);
+
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Connection", "Keep-Alive");
+            connection.setRequestProperty("User-Agent", "Android Multipart HTTP Client 1.0");
+
+            outputStream = new DataOutputStream(connection.getOutputStream());
+
+            String JWT = MainActivity.session.getJWT();
+            outputStream.writeBytes(JWT);
+
+
+            if (201 != connection.getResponseCode()) {
+                throw new IOException("Failed to upload code:" + connection.getResponseCode() + " " + connection.getResponseMessage());
+            }
+
+            inputStream = connection.getInputStream();
+
+            String result = this.convertStreamToString(inputStream);
+
+            inputStream.close();
+            outputStream.flush();
+            outputStream.close();
+
+            return result;
+        } catch (Exception e) {
+            throw new IOException(e);
+        }
+
+    }
+
+    private String convertStreamToString(InputStream is) {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        StringBuilder sb = new StringBuilder();
+
+        String line = null;
+        try {
+            while ((line = reader.readLine()) != null) {
+                sb.append(line);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                is.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return sb.toString();
     }
 
     public void deleteRoommate(JSONObject jsonObject) {

@@ -20,6 +20,14 @@ public class Session {
         return prefs.getString("username","");
     }
 
+    public void setJWT(String jwt) {
+        prefs.edit().putString("jwt", jwt).apply();
+    }
+
+    public String getJWT() {
+        return prefs.getString("jwt","");
+    }
+
     public void clearSession(Context ctx)
     {
         SharedPreferences.Editor editor = prefs.edit();

@@ -7,7 +7,7 @@
     <string name="risk2">Risico</string>
     <string name="risk3">Hoog risico</string>
     <string name="risk4">U heeft het virus</string>
-    <string name="coronaform">Hier kunt u aangeven welke symptomen van Covid-19 u ervaart. Deze informatie kan helpen een betere inschatting te maken van uw risiconiveau. Wijzigingen worden alleen opgeslagen als u deze bevestigt en opnieuw uw wachtwoord invoert.</string>
+    <string name="coronaform">Hier kunt u aangeven welke symptomen van Covid-19 u ervaart. Deze informatie kan helpen een betere inschatting te maken van uw risiconiveau. Wijzigingen worden alleen opgeslagen als u deze bevestigt en opnieuw uw wachtwoord invoert. Bent u getest en weet u zeker of u besmet bent of niet? Selecteer dan "IK BEN GETEST".</string>
     <string name="koorts">Lichaamstemperatuur van tenminste 38 graden in rust.</string>
     <string name="keelpijn">Een branderig gevoel, slikklachten en/of het gevoel dat de keel vernauwd is.</string>
     <string name="hoofdpijn">Drukkende pijn gelokaliseerd in het hoofd.</string>
@@ -17,4 +17,5 @@
     <string name="borstpijn">Een ongewoon drukkend gevoel op de borst; pijn optioneel.</string>
     <string name="hoest">Een kriebelende hoest waarbij geen of weinig slijm wordt opgehoest. Voelt alsof de hoest vastzit en niet weggaat.</string>
     <string name="bewegingsvermogen">U leidt aan dit symptoom als u overige klachten heeft die uw bewegingsvermogen verminderen, inclusief moeite met spreken.</string>
+    <string name="voorzorgsmaatregelen">Selecteer de voorzorgsmaatregelen die u zelf heeft getroffen en waaraan u zich tijdens het contact heeft gehouden.</string>
 </resources>

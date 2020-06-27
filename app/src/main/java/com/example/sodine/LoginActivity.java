@@ -50,11 +50,11 @@ public class LoginActivity extends AppCompatActivity {
         String password = passwordInput.getText().toString();
         boolean success = false;
 
-        if(validate() != null) {
-            success = true;
-        }
-        if (success) {
+        String JWT = validate();
+
+        if(JWT != null) {
             MainActivity.session.setUser(email);
+            MainActivity.session.setJWT(JWT);
             Intent intent = new Intent(this, MainActivity.class);
             startActivity(intent);
         } else {
@@ -73,17 +73,16 @@ public class LoginActivity extends AppCompatActivity {
         CompletableFuture<String> completableFuture = CompletableFuture.supplyAsync(this::validateA);
         String resultFromAsync = "";
         try {
-            resultFromAsync= completableFuture.get();
+            resultFromAsync = completableFuture.get();
         } catch (Exception e) {
             Log.d("Error", e.toString());
         }
 
-        Log.d("formdata", resultFromAsync);
-        Log.d("formdata", "bitch please");
+        Log.d("formdata raw", resultFromAsync);
         try {
             JSONObject jsonObject = new JSONObject(resultFromAsync);
             String result = (String) jsonObject.get("access_token");
-            Log.d("formdata", result);
+            Log.d("formdata JSONObject", result);
             return result;
         } catch (Exception e) {
             Log.d("Error", e.toString());
@@ -98,11 +97,9 @@ public class LoginActivity extends AppCompatActivity {
         Log.d("email a", email);
         Log.d("Password a", password);
         String url = "https://sodine.nl:5000/api/v1.0/user/login";
+
         String result = "";
-
-        String response = "";
         try {
-
             Map<String, String> params = new HashMap<String, String>(2);
             params.put("email", email);
             params.put("password", password);
