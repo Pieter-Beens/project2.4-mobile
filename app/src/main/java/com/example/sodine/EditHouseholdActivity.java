@@ -72,11 +72,23 @@ public class EditHouseholdActivity extends AppCompatActivity {
     public void addRoommate(View view) {
         String roommateID = this.addRoommateInput.getText().toString();
 
-        HashMap<String,String> args = new HashMap<>();
-        args.put("id", roommateID);
+        HashMap<String,String> roommateArgs = new HashMap<>();
+        roommateArgs.put("roommate", roommateID);
+        MainActivity.API.POST("roommates", MainActivity.session.getUserID(), roommateArgs);
+
+        try {
+            Thread.sleep(1000);
+        } catch (Exception e) {
+            System.out.println("Ain't no sleep for the wicked");
+        }
+
+        HashMap<String,String> notificationArgs = new HashMap<>();
+        notificationArgs.put("notification type", "2");
+        notificationArgs.put("sendee", roommateID);
+        notificationArgs.put("admin password", "superSecretPassword");
+        MainActivity.API.POST("notifications", MainActivity.session.getUserID(), notificationArgs);
 
         Intent intent = new Intent(this, EditHouseholdActivity.class);
-        MainActivity.API.POST("roommates", MainActivity.session.getUserID(), args);
         startActivity(intent);
     }
 
