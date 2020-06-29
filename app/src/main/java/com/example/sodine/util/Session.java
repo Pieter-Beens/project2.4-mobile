@@ -6,18 +6,23 @@ import androidx.preference.PreferenceManager;
 
 public class Session {
 
+    private String userID;
     private SharedPreferences prefs;
 
     public Session(Context context) {
         prefs = PreferenceManager.getDefaultSharedPreferences(context);
     }
 
-    public void setUser(String username) {
-        prefs.edit().putString("username", username).apply();
+    public String getUser() {
+        return "";
     }
 
-    public String getUser() {
-        return prefs.getString("username","");
+    public void setUserID(String userID) {
+        this.userID = userID;
+    }
+
+    public String getUserID() {
+        return this.userID;
     }
 
     public void setJWT(String jwt) {

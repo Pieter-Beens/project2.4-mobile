@@ -2,24 +2,23 @@ package com.example.sodine;
 
 import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.sodine.util.APIConnection;
 import com.example.sodine.util.Session;
-
-import java.util.concurrent.CompletableFuture;
 
 public class MainActivity extends AppCompatActivity {
 
     public static Session session;
+    public static APIConnection API;
 
     public static int risico = 0;
 
     public TextView usernameView;
+    public TextView idView;
     public TextView statusView;
     public ImageView coronaImageView;
 
@@ -30,15 +29,24 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         usernameView = findViewById(R.id.usernameView);
+        idView = findViewById(R.id.idTextView);
         statusView = findViewById(R.id.riskTextView);
         coronaImageView = findViewById(R.id.coronaImageView);
 
-        session = new Session(MainActivity.this);
+        if (session == null) {
+            session = new Session(MainActivity.this);
+        }
 
-        System.out.println("USER FOUND IN SESSION: " + session.getUser());
+        if (API == null) {
+            API = new APIConnection();
+        }
 
-        if (!session.getUser().equals("")) {
+        if (!session.getJWT().equals("")) {
             usernameView.setText(session.getUser());
+            //TODO:
+            // CompletableFuture<Map> completableFuture = CompletableFuture.supplyAsync(() -> API.validate(email, password));API.GET("user" + session.getUserID());
+            //
+            idView.setText("(#" + session.getUserID() + ")");
             if (risico <= 1) {
                 coronaImageView.setImageResource(R.drawable.corona_0);
                 statusView.setText(R.string.risk0);

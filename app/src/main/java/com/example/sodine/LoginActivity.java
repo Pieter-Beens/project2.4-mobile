@@ -9,17 +9,13 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.example.sodine.util.APIConnection;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
@@ -48,13 +44,38 @@ public class LoginActivity extends AppCompatActivity {
     public void login(View view) {
         String email = nameInput.getText().toString();
         String password = passwordInput.getText().toString();
-        boolean success = false;
 
-        String JWT = validate();
+        CompletableFuture<String> completableFuture = CompletableFuture.supplyAsync(() -> MainActivity.API.validate(email, password));
+        String resultFromAsync = "";
+        try {
+            resultFromAsync = completableFuture.get();
+        } catch (Exception e) {
+            Log.d("Error", e.toString());
+        }
 
-        if(JWT != null) {
-            MainActivity.session.setUser(email);
+        Log.d("formdata raw", resultFromAsync);
+        String JWT = null;
+        try {
+            JSONObject jsonObject = new JSONObject(resultFromAsync);
+            JWT = (String) jsonObject.get("access_token");
+            Log.d("JWT", JWT);
+        } catch (Exception e) {
+            Log.d("Error", e.toString());
+        }
+
+        if (JWT != null) {
             MainActivity.session.setJWT(JWT);
+
+            CompletableFuture<HashMap> completableFuture2 = CompletableFuture.supplyAsync(() -> MainActivity.API.GET("user_id"));
+            HashMap<String, String> resultFromAsync2 = new HashMap<>();
+            try {
+                resultFromAsync2 = completableFuture2.get();
+            } catch (Exception e) {
+                Log.d("Error", e.toString());
+            }
+
+            MainActivity.session.setUserID(resultFromAsync2.get("Identity").substring(2, resultFromAsync2.get("Identity").indexOf("]")));
+
             Intent intent = new Intent(this, MainActivity.class);
             startActivity(intent);
         } else {
@@ -65,134 +86,5 @@ public class LoginActivity extends AppCompatActivity {
     public void register(View view) {
         Intent intent = new Intent(this, RegisterActivity.class);
         startActivity(intent);
-    }
-
-    //TODO: move everything below here to API class
-
-    public String validate() {
-        CompletableFuture<String> completableFuture = CompletableFuture.supplyAsync(this::validateA);
-        String resultFromAsync = "";
-        try {
-            resultFromAsync = completableFuture.get();
-        } catch (Exception e) {
-            Log.d("Error", e.toString());
-        }
-
-        Log.d("formdata raw", resultFromAsync);
-        try {
-            JSONObject jsonObject = new JSONObject(resultFromAsync);
-            String result = (String) jsonObject.get("access_token");
-            Log.d("formdata JSONObject", result);
-            return result;
-        } catch (Exception e) {
-            Log.d("Error", e.toString());
-        }
-        return null;
-    }
-
-    public String validateA() {
-        String email = nameInput.getText().toString();
-        String password = passwordInput.getText().toString();
-
-        Log.d("email a", email);
-        Log.d("Password a", password);
-        String url = "https://sodine.nl:5000/api/v1.0/user/login";
-
-        String result = "";
-        try {
-            Map<String, String> params = new HashMap<String, String>(2);
-            params.put("email", email);
-            params.put("password", password);
-            result = multipartRequest(url, params);
-
-        } catch (Exception e) {
-            Log.d("Error", e.toString());
-        }
-
-        return result;
-    }
-
-    public String multipartRequest(String urlTo, Map<String, String> params) throws IOException {
-        HttpURLConnection connection = null;
-        DataOutputStream outputStream = null;
-        InputStream inputStream = null;
-
-        String twoHyphens = "--";
-        String boundary = "*****" + Long.toString(System.currentTimeMillis()) + "*****";
-        String lineEnd = "\r\n";
-
-        String result = "";
-
-
-        try {
-            URL url = new URL(urlTo);
-            connection = (HttpURLConnection) url.openConnection();
-
-            connection.setDoInput(true);
-            connection.setDoOutput(true);
-            connection.setUseCaches(false);
-
-            connection.setRequestMethod("POST");
-            connection.setRequestProperty("Connection", "Keep-Alive");
-            connection.setRequestProperty("User-Agent", "Android Multipart HTTP Client 1.0");
-            connection.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
-
-            outputStream = new DataOutputStream(connection.getOutputStream());
-
-            // Upload POST Data
-            Iterator<String> keys = params.keySet().iterator();
-            while (keys.hasNext()) {
-                String key = keys.next();
-                String value = params.get(key);
-
-                outputStream.writeBytes(twoHyphens + boundary + lineEnd);
-                outputStream.writeBytes("Content-Disposition: form-data; name=\"" + key + "\"" + lineEnd);
-                outputStream.writeBytes("Content-Type: text/plain" + lineEnd);
-                outputStream.writeBytes(lineEnd);
-                outputStream.writeBytes(value);
-                outputStream.writeBytes(lineEnd);
-            }
-
-            outputStream.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
-
-
-            if (200 != connection.getResponseCode()) {
-                throw new IOException("Failed to upload code:" + connection.getResponseCode() + " " + connection.getResponseMessage());
-            }
-
-            inputStream = connection.getInputStream();
-
-            result = this.convertStreamToString(inputStream);
-
-            inputStream.close();
-            outputStream.flush();
-            outputStream.close();
-
-            return result;
-        } catch (Exception e) {
-            throw new IOException(e);
-        }
-
-    }
-
-    private String convertStreamToString(InputStream is) {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-        StringBuilder sb = new StringBuilder();
-
-        String line = null;
-        try {
-            while ((line = reader.readLine()) != null) {
-                sb.append(line);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                is.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return sb.toString();
     }
 }

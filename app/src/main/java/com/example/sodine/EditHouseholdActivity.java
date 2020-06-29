@@ -63,7 +63,7 @@ public class EditHouseholdActivity extends AppCompatActivity {
     }
 
     public String getRoommateData() {
-        String userID = MainActivity.session.getUser(); //TODO: change from name to ID from JWT
+        String userID = MainActivity.session.getUserID(); //TODO: change from name to ID from JWT
         String url = "https://sodine.nl:5000/api/v1.0/roommates/" + userID;
         String response = "";
         try {
@@ -83,9 +83,9 @@ public class EditHouseholdActivity extends AppCompatActivity {
         InputStream inputStream;
 
         //formdata stuff
-        String twoHyphens = "--";
-        String boundary = "*****" + Long.toString(System.currentTimeMillis()) + "*****";
-        String lineEnd = "\r\n";
+        String TWO_HYPHENS = "--";
+        String BOUNDARY = "*****" + Long.toString(System.currentTimeMillis()) + "*****";
+        String LINE_END = "\r\n";
 
         try {
             URL url = new URL(urlTo);
@@ -98,7 +98,7 @@ public class EditHouseholdActivity extends AppCompatActivity {
             connection.setRequestMethod("GET");
             connection.setRequestProperty("Connection", "Keep-Alive");
             connection.setRequestProperty("User-Agent", "Android Multipart HTTP Client 1.0");
-            connection.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
+            connection.setRequestProperty("Content-Type", "multipart/form-data; BOUNDARY=" + BOUNDARY);
 
             outputStream = new DataOutputStream(connection.getOutputStream());
 
@@ -108,16 +108,16 @@ public class EditHouseholdActivity extends AppCompatActivity {
                 String value = params.get(key);
 
                 //formdata stuff
-                outputStream.writeBytes(twoHyphens + boundary + lineEnd);
-                outputStream.writeBytes("Content-Disposition: form-data; name=\"" + key + "\"" + lineEnd);
-                outputStream.writeBytes("Content-Type: text/plain" + lineEnd);
-                outputStream.writeBytes(lineEnd);
+                outputStream.writeBytes(TWO_HYPHENS + BOUNDARY + LINE_END);
+                outputStream.writeBytes("Content-Disposition: form-data; name=\"" + key + "\"" + LINE_END);
+                outputStream.writeBytes("Content-Type: text/plain" + LINE_END);
+                outputStream.writeBytes(LINE_END);
                 outputStream.writeBytes(value);
-                outputStream.writeBytes(lineEnd);
+                outputStream.writeBytes(LINE_END);
             }
 
             //formdata stuff
-            outputStream.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
+            outputStream.writeBytes(TWO_HYPHENS + BOUNDARY + TWO_HYPHENS + LINE_END);
 
 
             if (200 != connection.getResponseCode()) {
