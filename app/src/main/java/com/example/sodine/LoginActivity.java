@@ -11,7 +11,10 @@ import android.widget.TextView;
 
 import com.example.sodine.util.APIConnection;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -45,19 +48,17 @@ public class LoginActivity extends AppCompatActivity {
         String email = nameInput.getText().toString();
         String password = passwordInput.getText().toString();
 
-        CompletableFuture<String> completableFuture = CompletableFuture.supplyAsync(() -> MainActivity.API.validate(email, password));
-        String resultFromAsync = "";
+        CompletableFuture<JSONObject> completableFuture = CompletableFuture.supplyAsync(() -> MainActivity.API.validate(email, password));
+        JSONObject jwtObject = new JSONObject();
         try {
-            resultFromAsync = completableFuture.get();
+            jwtObject = completableFuture.get();
         } catch (Exception e) {
             Log.d("Error", e.toString());
         }
 
-        Log.d("formdata raw", resultFromAsync);
         String JWT = null;
         try {
-            JSONObject jsonObject = new JSONObject(resultFromAsync);
-            JWT = (String) jsonObject.get("access_token");
+            JWT = (String) jwtObject.get("access_token");
             Log.d("JWT", JWT);
         } catch (Exception e) {
             Log.d("Error", e.toString());
@@ -66,15 +67,26 @@ public class LoginActivity extends AppCompatActivity {
         if (JWT != null) {
             MainActivity.session.setJWT(JWT);
 
-            CompletableFuture<HashMap> completableFuture2 = CompletableFuture.supplyAsync(() -> MainActivity.API.GET("user_id"));
-            HashMap<String, String> resultFromAsync2 = new HashMap<>();
+            CompletableFuture<JSONObject> completableFuture2 = CompletableFuture.supplyAsync(() -> MainActivity.API.GET("user_id"));
+            JSONObject response = new JSONObject();
             try {
-                resultFromAsync2 = completableFuture2.get();
+                response = completableFuture2.get();
             } catch (Exception e) {
                 Log.d("Error", e.toString());
             }
 
-            MainActivity.session.setUserID(resultFromAsync2.get("Identity").substring(2, resultFromAsync2.get("Identity").indexOf("]")));
+            JSONArray jsonArray = null;
+            try {
+                jsonArray = (JSONArray) response.get("Identity");
+            } catch (Exception e) {
+                Log.d("ERROR", e.toString());
+            }
+            try {
+                jsonArray = (JSONArray) jsonArray.get(0);
+                MainActivity.session.setUserID((jsonArray.get(0)).toString());
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
 
             Intent intent = new Intent(this, MainActivity.class);
             startActivity(intent);

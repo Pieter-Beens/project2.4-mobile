@@ -5,205 +5,87 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 
 public class EditHouseholdActivity extends AppCompatActivity {
+
+    LinearLayout linearLayout;
+    EditText addRoommateInput;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_household);
 
-        LinearLayout linearLayout = findViewById(R.id.linearLayout);
+        this.linearLayout = findViewById(R.id.roommatesLayout);
+        this.addRoommateInput = findViewById(R.id.editText);
 
-        CompletableFuture<String> completableFuture = CompletableFuture.supplyAsync(this::getRoommateData);
-        String json = "";
+        JSONObject roommatesJSON = MainActivity.API.GET("roommates", MainActivity.session.getUserID());
+
+        System.out.println("roommatesJSON: " + roommatesJSON);
+
+        HashMap<Button,String> map = new HashMap<>();
         try {
-            json = completableFuture.get();
-        } catch (Exception e) {
-            Log.d("ERROR", e.toString());
-        }
+            JSONArray roommatesArray = (JSONArray) roommatesJSON.get("key");
+            for (int i = 0; i < roommatesArray.length(); i++) {
+                JSONArray usersLiveTogether = (JSONArray) roommatesArray.get(i);
 
+                String userID = usersLiveTogether.get(2).toString();
 
-        HashMap<Button,String> buttonToJson = new HashMap<>();
-        try {
-            JSONArray jsonObject = new JSONArray(json);
-            for (int i = 0; i < jsonObject.length(); i++) {
-                JSONObject usersLiveTogether = jsonObject.getJSONObject(i);
+                JSONObject userDetails = MainActivity.API.GET("user/username", userID);
 
-                Button newButton = new Button(this);
-                newButton.setOnClickListener(v -> deleteRoommate(usersLiveTogether));
-                String roommate = (String) usersLiveTogether.get("roommate");
-                newButton.setText(roommate);
+                System.out.println("userDetails: " + userDetails);
 
-                buttonToJson.put(newButton, usersLiveTogether.toString());
+                TextView nameTextView = new TextView(this);
+                nameTextView.setTextSize(36);
+                nameTextView.setText((String) userDetails.get("name"));
 
-                linearLayout.addView(newButton);
+                Button deleteButton = new Button(this);
+                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                deleteButton.setLayoutParams(params);
+                deleteButton.setBackgroundColor(getResources().getColor(R.color.red));
+                deleteButton.setTextSize(24);
+                deleteButton.setTextColor(getColor(R.color.white));
+                deleteButton.setOnClickListener(v -> deleteRoommate(userID));
+                deleteButton.setText("DELETE");
+
+                System.out.println(linearLayout);
+
+                this.linearLayout.addView(nameTextView);
+                this.linearLayout.addView(deleteButton);
             }
         } catch (JSONException e) {
             Log.d("JSONERROR", e.toString());
         }
     }
 
-    public String getRoommateData() {
-        String userID = MainActivity.session.getUserID(); //TODO: change from name to ID from JWT
-        String url = "https://sodine.nl:5000/api/v1.0/roommates/" + userID;
-        String response = "";
-        try {
-            Map<String, String> params = new HashMap<>(1);
-            params.put("id", userID);
-            response = sendJWT(url);
-        } catch (Exception e) {
-            Log.d("Error", e.toString());
-        }
-        return response;
-    }
+    public void addRoommate(View view) {
+        String roommateID = this.addRoommateInput.getText().toString();
 
+        HashMap<String,String> args = new HashMap<>();
+        args.put("id", roommateID);
 
-    public String sendFormdata(String urlTo, Map<String, String> params) throws IOException {
-        HttpURLConnection connection;
-        DataOutputStream outputStream;
-        InputStream inputStream;
-
-        //formdata stuff
-        String TWO_HYPHENS = "--";
-        String BOUNDARY = "*****" + Long.toString(System.currentTimeMillis()) + "*****";
-        String LINE_END = "\r\n";
-
-        try {
-            URL url = new URL(urlTo);
-            connection = (HttpURLConnection) url.openConnection();
-
-            connection.setDoInput(true);
-            connection.setDoOutput(true);
-            connection.setUseCaches(false);
-
-            connection.setRequestMethod("GET");
-            connection.setRequestProperty("Connection", "Keep-Alive");
-            connection.setRequestProperty("User-Agent", "Android Multipart HTTP Client 1.0");
-            connection.setRequestProperty("Content-Type", "multipart/form-data; BOUNDARY=" + BOUNDARY);
-
-            outputStream = new DataOutputStream(connection.getOutputStream());
-
-            Iterator<String> keys = params.keySet().iterator();
-            while (keys.hasNext()) {
-                String key = keys.next();
-                String value = params.get(key);
-
-                //formdata stuff
-                outputStream.writeBytes(TWO_HYPHENS + BOUNDARY + LINE_END);
-                outputStream.writeBytes("Content-Disposition: form-data; name=\"" + key + "\"" + LINE_END);
-                outputStream.writeBytes("Content-Type: text/plain" + LINE_END);
-                outputStream.writeBytes(LINE_END);
-                outputStream.writeBytes(value);
-                outputStream.writeBytes(LINE_END);
-            }
-
-            //formdata stuff
-            outputStream.writeBytes(TWO_HYPHENS + BOUNDARY + TWO_HYPHENS + LINE_END);
-
-
-            if (200 != connection.getResponseCode()) {
-                throw new IOException("Failed to upload code:" + connection.getResponseCode() + " " + connection.getResponseMessage());
-            }
-
-            inputStream = connection.getInputStream();
-
-            String result = this.convertStreamToString(inputStream);
-
-            inputStream.close();
-            outputStream.flush();
-            outputStream.close();
-
-            return result;
-        } catch (Exception e) {
-            throw new IOException(e);
-        }
-    }
-
-    public String sendJWT(String urlTo) throws IOException {
-        HttpURLConnection connection;
-        DataOutputStream outputStream;
-        InputStream inputStream;
-
-        try {
-            URL url = new URL(urlTo);
-            connection = (HttpURLConnection) url.openConnection();
-
-            connection.setDoInput(true);
-            connection.setDoOutput(true);
-            connection.setUseCaches(false);
-
-            connection.setRequestMethod("POST");
-            connection.setRequestProperty("Connection", "Keep-Alive");
-            connection.setRequestProperty("User-Agent", "Android Multipart HTTP Client 1.0");
-
-            outputStream = new DataOutputStream(connection.getOutputStream());
-
-            String JWT = MainActivity.session.getJWT();
-            outputStream.writeBytes(JWT);
-
-
-            if (201 != connection.getResponseCode()) {
-                throw new IOException("Failed to upload code:" + connection.getResponseCode() + " " + connection.getResponseMessage());
-            }
-
-            inputStream = connection.getInputStream();
-
-            String result = this.convertStreamToString(inputStream);
-
-            inputStream.close();
-            outputStream.flush();
-            outputStream.close();
-
-            return result;
-        } catch (Exception e) {
-            throw new IOException(e);
-        }
-
-    }
-
-    private String convertStreamToString(InputStream is) {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-        StringBuilder sb = new StringBuilder();
-
-        String line = null;
-        try {
-            while ((line = reader.readLine()) != null) {
-                sb.append(line);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                is.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return sb.toString();
-    }
-
-    public void deleteRoommate(JSONObject jsonObject) {
         Intent intent = new Intent(this, EditHouseholdActivity.class);
-        //TODO: send delete command to API
+        MainActivity.API.POST("roommates", MainActivity.session.getUserID(), args);
+        startActivity(intent);
+    }
+
+    public void deleteRoommate(String roommateID) {
+        HashMap<String,String> args = new HashMap<>();
+        args.put("id", roommateID);
+
+        Intent intent = new Intent(this, EditHouseholdActivity.class);
+        MainActivity.API.DELETE("roommates", MainActivity.session.getUserID(), args);
         startActivity(intent);
     }
 }

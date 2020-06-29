@@ -18,11 +18,11 @@ public class Session {
     }
 
     public void setUserID(String userID) {
-        this.userID = userID;
+        prefs.edit().putString("id", userID).apply();
     }
 
     public String getUserID() {
-        return this.userID;
+        return prefs.getString("id","");
     }
 
     public void setJWT(String jwt) {
